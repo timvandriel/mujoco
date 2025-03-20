@@ -1,0 +1,97 @@
+<mujoco model="HumanoidOnTrampoline">
+  <include file="scene.xml"/>
+  <option timestep="0.002" integrator="RK4" gravity="0 0 -9.81"/>
+  
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="512"/>
+    <texture name="texplane" type="2d" builtin="checker" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
+      width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
+    <material name="matplane" texture="texplane" texrepeat="1 1" texuniform="true" reflectance=".2"/>
+    <material name="trampoline" rgba="0.1 0.5 0.9 1"/>
+    <material name="humanoid" rgba="0.8 0.6 0.4 1"/>
+  </asset>
+  
+  <worldbody>
+    <!-- Ground -->
+    <geom name="ground" type="plane" size="10 10 0.1" pos="0 0 0" material="matplane"/>
+    
+    <!-- Trampoline -->
+    <body name="trampoline_body" pos="0 0 0.5">
+      <!-- Trampoline Frame -->
+      <geom name="trampoline_frame" type="cylinder" size="2 0.1" pos="0 0 0" rgba="0.2 0.2 0.2 1"/>
+      
+      <!-- Trampoline Surface -->
+      <body name="trampoline_surface" pos="0 0 0.15">
+        <joint name="trampoline_joint" type="slide" axis="0 0 1" range="-0.5 0.5" damping="5" stiffness="1000"/>
+        <geom name="trampoline_surface" type="ellipsoid" size="1.8 1.8 0.05" material="trampoline"/>
+      </body>
+    </body>
+    
+    <!-- Humanoid 1 -->
+    <body name="humanoid1" pos="0 0 4">
+      <freejoint/>
+      <!-- Torso -->
+      <geom name="torso1" type="capsule" size="0.07 0.15" pos="0 0 0" zaxis="0 0 1" material="humanoid"/>
+      
+      <!-- Head -->
+      <body name="head1" pos="0 0 0.29">
+        <joint name="neck1" type="ball" damping="5"/>
+        <geom name="head1" type="sphere" size="0.09" material="humanoid"/>
+      </body>
+      
+      <!-- Arms -->
+      <body name="right_upper_arm1" pos="0 -0.17 0.16">
+        <joint name="right_shoulder1" type="ball" damping="5"/>
+        <geom name="right_upper_arm1" type="capsule" size="0.04 0.11" zaxis="0 -1 0" material="humanoid"/>
+        <body name="right_lower_arm1" pos="0 -0.18 0">
+          <joint name="right_elbow1" type="hinge" axis="0 0 1" range="-2.5 0" damping="5"/>
+          <geom name="right_lower_arm1" type="capsule" size="0.03 0.11" zaxis="0 -1 0" material="humanoid"/>
+        </body>
+      </body>
+      <body name="left_upper_arm1" pos="0 0.17 0.16">
+        <joint name="left_shoulder1" type="ball" damping="5"/>
+        <geom name="left_upper_arm1" type="capsule" size="0.04 0.11" zaxis="0 1 0" material="humanoid"/>
+        <body name="left_lower_arm1" pos="0 0.18 0">
+          <joint name="left_elbow1" type="hinge" axis="0 0 -1" range="-2.5 0" damping="5"/>
+          <geom name="left_lower_arm1" type="capsule" size="0.03 0.11" zaxis="0 1 0" material="humanoid"/>
+        </body>
+      </body>
+      
+      <!-- Legs -->
+      <body name="right_thigh1" pos="0 -0.08 -0.15">
+        <joint name="right_hip1" type="ball" damping="5"/>
+        <geom name="right_thigh1" type="capsule" size="0.05 0.13" zaxis="0 0 -1" material="humanoid"/>
+        <body name="right_shin1" pos="0 0 -0.28">
+          <joint name="right_knee1" type="hinge" pos="0 0 0" axis="0 1 0" range="0 2.5" damping="5"/>
+          <geom name="right_shin1" type="capsule" size="0.04 0.13" zaxis="0 0 -1" material="humanoid"/>
+        </body>
+      </body>
+      <body name="left_thigh1" pos="0 0.08 -0.15">
+        <joint name="left_hip1" type="ball" damping="5"/>
+        <geom name="left_thigh1" type="capsule" size="0.05 0.13" zaxis="0 0 -1" material="humanoid"/>
+        <body name="left_shin1" pos="0 0 -0.28">
+          <joint name="left_knee1" type="hinge" pos="0 0 0" axis="0 -1 0" range="0 2.5" damping="5"/>
+          <geom name="left_shin1" type="capsule" size="0.04 0.13" zaxis="0 0 -1" material="humanoid"/>
+        </body>
+      </body>
+    </body>
+    
+    <!-- Spawn point for second humanoid (initially hidden) -->
+    <body name="humanoid2_spawn" pos="0 0 6" mocap="true">
+      <geom name="spawner" type="sphere" size="0.05" rgba="1 0 0 0.5"/>
+    </body>
+    
+    <!-- Camera -->
+    <camera name="main" pos="3 3 2" euler="-0.7 0.8 0"/>
+  </worldbody>
+  
+  <actuator>
+    <!-- Trampoline actuator for extra bounce -->
+    <motor name="trampoline_motor" joint="trampoline_joint" ctrlrange="-100 100" ctrllimited="true"/>
+  </actuator>
+  
+  <keyframe>
+    <!-- Second humanoid drops after 5 seconds -->
+    <key name="drop_humanoid2" time="5" qpos="0 0 6 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/>
+  </keyframe>
+</mujoco>

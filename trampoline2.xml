@@ -1,0 +1,26 @@
+<mujoco model="Trampoline">
+<include file="scene.xml"/>
+<option timestep="0.001" solver="CG" tolerance="1e-6" integrator="implicitfast"/>
+<size memory="10M"/>
+<visual>
+<map stiffness="100"/>
+</visual>
+<default>
+<default class="wall">
+<geom type="plane" size=".5 .5 .05"/>
+</default>
+</default>
+<worldbody>
+<body pos="0 0 3.0">  <!-- Further increased initial height to 3.0 -->
+<freejoint/>
+<geom type="sphere" size=".1" solref="0.001 1" solimp=".99 .999 .0001"/>  <!-- Added ball contact properties -->
+</body>
+<flexcomp type="disc" count="16 16 1" spacing=".1 .1 .1" pos="0 0 1"
+radius=".01" mass="10" name="plate" dim="2">
+<contact condim="3" solref="0.001 1" solimp=".99 .999 .00001"/>  <!-- Much more elastic contact -->
+<edge equality="false" damping="2"/>  <!-- Significantly reduced damping from 10 to 2 -->
+<elasticity young="1.5e6" poisson="0" thickness="1.5e-2"/>  <!-- Increased Young's modulus 5x and thickness 1.5x -->
+<pin id="0 15 240 255"/>
+</flexcomp>
+</worldbody>
+</mujoco>

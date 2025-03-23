@@ -1,97 +1,110 @@
-<mujoco model="HumanoidOnTrampoline">
-  <include file="scene.xml"/>
-  <option timestep="0.002" integrator="RK4" gravity="0 0 -9.81"/>
-  
-  <asset>
-    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="512"/>
-    <texture name="texplane" type="2d" builtin="checker" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
-      width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
-    <material name="matplane" texture="texplane" texrepeat="1 1" texuniform="true" reflectance=".2"/>
-    <material name="trampoline" rgba="0.1 0.5 0.9 1"/>
-    <material name="humanoid" rgba="0.8 0.6 0.4 1"/>
-  </asset>
-  
-  <worldbody>
-    <!-- Ground -->
-    <geom name="ground" type="plane" size="10 10 0.1" pos="0 0 0" material="matplane"/>
+<mujoco model="Humanoid_Trampoline">
+ <include file="scene.xml"/>
+ <option timestep="0.001" solver="CG" tolerance="1e-6" integrator="implicitfast"/>
+ <size memory="10M"/>
+ <visual>
+    <map stiffness="100"/>
+    <global fovy='30'/>
+ </visual>
+ 
+<default>
+  <default class="wall">
+    <geom type="plane" size=".5 .5 .05"/>
+  </default>
+  <joint limited="true" damping="0.5" armature="0.01" range="-90 90"/>
+  <geom conaffinity="1" condim="3" contype="1" margin="0.001" friction="0.7 0.1 0.1" rgba="0.8 0.6 0.4 1" solimp="0.99 0.999 0.00001" solref="0.001 1"/>
+  <motor ctrllimited="true" ctrlrange="-1.0 1.0"/>
+  <site size="0.005"/>
+</default>
+
+ <asset>
+    <texture builtin="gradient" height="100" rgb1="1 1 1" rgb2="0 0 0" type="skybox" width="100"/>
+    <texture builtin="flat" height="1278" mark="cross" markrgb="1 1 1" name="texgeom" random="0.01" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" type="cube" width="127"/>
+    <material name="geom" texture="texgeom" texuniform="true"/>
+    <material name="trampoline" rgba="0.3 0.3 0.8 1" shininess="0.8"/>
+ </asset>
+
+ <worldbody>
+    <flexcomp type="disc" count="24 24 1" spacing=".1 .1 .1" pos="0 0 1"
+              radius=".01" mass="10" name="plate" dim="2">
+      <contact condim="3" solref="0.001 1" solimp=".99 .999 .00001"/>
+      <edge equality="false" damping="2"/>
+      <elasticity young="1.5e6" poisson="0" thickness="1.5e-2"/>
+      <pin id="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+           24 47 48 71 72 95 96 119 120 143 144 167 168 191 192 215 216 239
+           240 263 264 287 288 311 312 335 336 359 360 383 384 407 408 431
+           432 455 456 479 480 503 504 527 528 551 552 553 554 555 556 557
+           558 559 560 561 562 563 564 565 566 567 568 569 570 571 572 573
+           574 575"/>
+    </flexcomp>
     
-    <!-- Trampoline -->
-    <body name="trampoline_body" pos="0 0 0.5">
-      <!-- Trampoline Frame -->
-      <geom name="trampoline_frame" type="cylinder" size="2 0.1" pos="0 0 0" rgba="0.2 0.2 0.2 1"/>
-      
-      <!-- Trampoline Surface -->
-      <body name="trampoline_surface" pos="0 0 0.15">
-        <joint name="trampoline_joint" type="slide" axis="0 0 1" range="-0.5 0.5" damping="5" stiffness="1000"/>
-        <geom name="trampoline_surface" type="ellipsoid" size="1.8 1.8 0.05" material="trampoline"/>
-      </body>
+    <!-- Humanoid - positioned above the trampoline to drop -->
+    <body name="torso" pos="0 0 10.0" quat="1 0 0 -1">
+        <freejoint name="root"/>
+        <geom name="torso1" type="capsule" fromto="0 -0.07 0  0 0.07 0" size="0.07" rgba="0.5 0.5 0.8 1"/>
+        <geom name="head" type="sphere" pos="0 0 0.19" size="0.09" rgba="0.5 0.5 0.8 1"/>
+        <geom name="uwaist" type="capsule" fromto="-0.01 -0.06 -0.12  -0.01 0.06 -0.12" size="0.06" rgba="0.5 0.5 0.8 1"/>
+        <body name="lwaist" pos="-0.01 0 -0.26">
+            <geom name="lwaist" type="capsule" fromto="0 -0.06 0  0 0.06 0" size="0.06" rgba="0.5 0.5 0.8 1"/>
+            <joint name='spine' type='hinge' pos='0 0 0' axis='1 0 0' range='-5 5' stiffness='2000' damping='30'/>
+            <body name="pelvis" pos="0 0 -0.165">
+                <geom name="butt" type="capsule" fromto="-0.02 -0.07 0  -0.02 0.07 0" size="0.09" rgba="0.5 0.5 0.8 1"/>
+                <body name="right_thigh" pos="-0.01 -0.1 -0.04">
+                    <joint name="right_hip_x" type="hinge" pos="0 0 0" axis="1 0 0" range="-25 5"/>
+                    <joint name="right_hip_z" type="hinge" pos="0 0 0" axis="0 0 1" range="-60 35"/>
+                    <joint name="right_hip_y" type="hinge" pos="0 0 0" axis="0 1 0" range="-80 20"/>
+                    <geom name="right_thigh" type="capsule" fromto="0 0 0  0 0.01 -0.34" size="0.06" rgba="0.5 0.5 0.8 1"/>
+                    <body name="right_shin" pos="0 0.01 -0.403">
+                        <joint name="right_knee" type="hinge" pos="0 0 0" axis="0 -1 0" range="-160 -2" stiffness='500'/>
+                        <geom name="right_shin" type="capsule" fromto="0 0 0  0 0 -0.3" size="0.049" rgba="0.5 0.5 0.8 1"/>
+                        <body name="right_foot" pos="0 0 -0.35">
+                            <joint name="right_ankle_x" type="hinge" pos="0 0 0" axis="1 0 0" range="-20 20"/>
+                            <joint name="right_ankle_y" type="hinge" pos="0 0 0" axis="0 1 0" range="-45 45"/>
+                            <geom name="right_foot" type="box" pos="0.045 0 -0.0225" size="0.1 0.05 0.0225" rgba="0.5 0.5 0.8 1"/>
+                        </body>
+                    </body>
+                </body>
+                <body name="left_thigh" pos="-0.01 0.1 -0.04">
+                    <joint name="left_hip_x" type="hinge" pos="0 0 0" axis="-1 0 0" range="-25 5"/>
+                    <joint name="left_hip_z" type="hinge" pos="0 0 0" axis="0 0 -1" range="-60 35"/>
+                    <joint name="left_hip_y" type="hinge" pos="0 0 0" axis="0 1 0" range="-80 20"/>
+                    <geom name="left_thigh" type="capsule" fromto="0 0 0  0 -0.01 -0.34" size="0.06" rgba="0.5 0.5 0.8 1"/>
+                    <body name="left_shin" pos="0 -0.01 -0.403">
+                        <joint name="left_knee" type="hinge" pos="0 0 0" axis="0 1 0" range="-160 -2" stiffness='500'/>
+                        <geom name="left_shin" type="capsule" fromto="0 0 0  0 0 -0.3" size="0.049" rgba="0.5 0.5 0.8 1"/>
+                        <body name="left_foot" pos="0 0 -0.35">
+                            <joint name="left_ankle_x" type="hinge" pos="0 0 0" axis="-1 0 0" range="-20 20"/>
+                            <joint name="left_ankle_y" type="hinge" pos="0 0 0" axis="0 1 0" range="-45 45"/>
+                            <geom name="left_foot" type="box" pos="0.045 0 -0.0225" size="0.1 0.05 0.0225" rgba="0.5 0.5 0.8 1"/>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+        <body name="right_upper_arm" pos="0 -0.17 0.06">
+            <joint name="right_shoulder1" type="hinge" pos="0 0 0" axis="2 1 1" range="-45 40"/>
+            <joint name="right_shoulder2" type="hinge" pos="0 0 0" axis="0 -1 1" range="-45 40"/>
+            <geom name="right_uarm" type="capsule" fromto="0 0 0  0.16 -0.16 -0.16" size="0.04" rgba="0.5 0.5 0.8 1"/>
+            <body name="right_lower_arm" pos="0.18 -0.18 -0.18">
+                <joint name="right_elbow" type="hinge" pos="0 0 0" axis="0 -1 1" range="-90 50"/>
+                <geom name="right_larm" type="capsule" fromto="0 0 0  0.17 -0.17 -0.17" size="0.031" rgba="0.5 0.5 0.8 1"/>
+                <body name="right_hand" pos="0.18 -0.18 -0.18">
+                    <geom name="right_hand" type="sphere" size="0.04" rgba="0.5 0.5 0.8 1"/>
+                </body>
+            </body>
+        </body>
+        <body name="left_upper_arm" pos="0 0.17 0.06">
+            <joint name="left_shoulder1" type="hinge" pos="0 0 0" axis="2 -1 1" range="-45 40"/>
+            <joint name="left_shoulder2" type="hinge" pos="0 0 0" axis="0 1 1" range="-45 40"/>
+            <geom name="left_uarm" type="capsule" fromto="0 0 0  0.16 0.16 -0.16" size="0.04" rgba="0.5 0.5 0.8 1"/>
+            <body name="left_lower_arm" pos="0.18 0.18 -0.18">
+                <joint name="left_elbow" type="hinge" pos="0 0 0" axis="0 1 1" range="-90 50"/>
+                <geom name="left_larm" type="capsule" fromto="0 0 0  0.17 0.17 -0.17" size="0.031" rgba="0.5 0.5 0.8 1"/>
+                <body name="left_hand" pos="0.18 0.18 -0.18">
+                    <geom name="left_hand" type="sphere" size="0.04" rgba="0.5 0.5 0.8 1"/>
+                </body>
+            </body>
+        </body>
     </body>
-    
-    <!-- Humanoid 1 -->
-    <body name="humanoid1" pos="0 0 4">
-      <freejoint/>
-      <!-- Torso -->
-      <geom name="torso1" type="capsule" size="0.07 0.15" pos="0 0 0" zaxis="0 0 1" material="humanoid"/>
-      
-      <!-- Head -->
-      <body name="head1" pos="0 0 0.29">
-        <joint name="neck1" type="ball" damping="5"/>
-        <geom name="head1" type="sphere" size="0.09" material="humanoid"/>
-      </body>
-      
-      <!-- Arms -->
-      <body name="right_upper_arm1" pos="0 -0.17 0.16">
-        <joint name="right_shoulder1" type="ball" damping="5"/>
-        <geom name="right_upper_arm1" type="capsule" size="0.04 0.11" zaxis="0 -1 0" material="humanoid"/>
-        <body name="right_lower_arm1" pos="0 -0.18 0">
-          <joint name="right_elbow1" type="hinge" axis="0 0 1" range="-2.5 0" damping="5"/>
-          <geom name="right_lower_arm1" type="capsule" size="0.03 0.11" zaxis="0 -1 0" material="humanoid"/>
-        </body>
-      </body>
-      <body name="left_upper_arm1" pos="0 0.17 0.16">
-        <joint name="left_shoulder1" type="ball" damping="5"/>
-        <geom name="left_upper_arm1" type="capsule" size="0.04 0.11" zaxis="0 1 0" material="humanoid"/>
-        <body name="left_lower_arm1" pos="0 0.18 0">
-          <joint name="left_elbow1" type="hinge" axis="0 0 -1" range="-2.5 0" damping="5"/>
-          <geom name="left_lower_arm1" type="capsule" size="0.03 0.11" zaxis="0 1 0" material="humanoid"/>
-        </body>
-      </body>
-      
-      <!-- Legs -->
-      <body name="right_thigh1" pos="0 -0.08 -0.15">
-        <joint name="right_hip1" type="ball" damping="5"/>
-        <geom name="right_thigh1" type="capsule" size="0.05 0.13" zaxis="0 0 -1" material="humanoid"/>
-        <body name="right_shin1" pos="0 0 -0.28">
-          <joint name="right_knee1" type="hinge" pos="0 0 0" axis="0 1 0" range="0 2.5" damping="5"/>
-          <geom name="right_shin1" type="capsule" size="0.04 0.13" zaxis="0 0 -1" material="humanoid"/>
-        </body>
-      </body>
-      <body name="left_thigh1" pos="0 0.08 -0.15">
-        <joint name="left_hip1" type="ball" damping="5"/>
-        <geom name="left_thigh1" type="capsule" size="0.05 0.13" zaxis="0 0 -1" material="humanoid"/>
-        <body name="left_shin1" pos="0 0 -0.28">
-          <joint name="left_knee1" type="hinge" pos="0 0 0" axis="0 -1 0" range="0 2.5" damping="5"/>
-          <geom name="left_shin1" type="capsule" size="0.04 0.13" zaxis="0 0 -1" material="humanoid"/>
-        </body>
-      </body>
-    </body>
-    
-    <!-- Spawn point for second humanoid (initially hidden) -->
-    <body name="humanoid2_spawn" pos="0 0 6" mocap="true">
-      <geom name="spawner" type="sphere" size="0.05" rgba="1 0 0 0.5"/>
-    </body>
-    
-    <!-- Camera -->
-    <camera name="main" pos="3 3 2" euler="-0.7 0.8 0"/>
-  </worldbody>
-  
-  <actuator>
-    <!-- Trampoline actuator for extra bounce -->
-    <motor name="trampoline_motor" joint="trampoline_joint" ctrlrange="-100 100" ctrllimited="true"/>
-  </actuator>
-  
-  <keyframe>
-    <!-- Second humanoid drops after 5 seconds -->
-    <key name="drop_humanoid2" time="5" qpos="0 0 6 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/>
-  </keyframe>
+ </worldbody>
 </mujoco>

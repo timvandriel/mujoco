@@ -1,0 +1,31 @@
+<mujoco model="Trampoline">
+  <include file="scene.xml"/>
+
+  <option timestep="0.001" solver="CG" tolerance="1e-6" integrator="implicitfast"/>
+
+  <size memory="10M"/>
+
+  <visual>
+    <map stiffness="100"/>
+  </visual>
+
+  <default>
+    <default class="wall">
+      <geom type="plane" size=".5 .5 .05"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body pos=".005 0 2">
+      <freejoint/>
+      <geom type="sphere" size=".15"/>
+    </body>
+    <flexcomp type="grid" count="16 16 1" spacing=".1 .1 .1" pos="0 0 1"
+              radius=".001" mass="5" name="plate" dim="2">
+      <contact condim="3" solref="0.1 .1" solimp=".8 .999 .001 0.5 2"/>
+      <edge equality="false" damping="1"/>
+      <elasticity young="1e6" poisson="0" thickness="5e-2"/>
+      <pin id="0 15 240 255"/>
+    </flexcomp>
+  </worldbody>
+</mujoco>

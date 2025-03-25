@@ -11,6 +11,7 @@
     </default>
   </default>
   <worldbody>
+    <!-- Trampoline -->
     <flexcomp type="disc" count="24 24 1" spacing=".1 .1 .1" pos="0 0 1"
               radius=".01" mass="10" name="plate" dim="2">
       <contact condim="3" solref="0.001 1" solimp=".99 .999 .00001"/>

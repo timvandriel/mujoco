@@ -4,16 +4,17 @@
  <size memory="10M"/>
  <visual>
     <map stiffness="100"/>
+    <!--Set camera to higher position-->
     <global fovy='30'/>
  </visual>
  
+<!-- Set default values for the model -->
 <default>
   <default class="wall">
     <geom type="plane" size=".5 .5 .05"/>
   </default>
   <joint limited="true" damping="0.5" armature="0.01" range="-90 90"/>
   <geom conaffinity="1" condim="3" contype="1" margin="0.001" friction="0.7 0.1 0.1" rgba="0.8 0.6 0.4 1" solimp="0.99 0.999 0.00001" solref="0.001 1"/>
-  <motor ctrllimited="true" ctrlrange="-1.0 1.0"/>
   <site size="0.005"/>
 </default>
 
@@ -25,6 +26,7 @@
  </asset>
 
  <worldbody>
+    <!-- Trampoline -->
     <flexcomp type="disc" count="24 24 1" spacing=".1 .1 .1" pos="0 0 1"
               radius=".01" mass="10" name="plate" dim="2">
       <contact condim="3" solref="0.001 1" solimp=".99 .999 .00001"/>
